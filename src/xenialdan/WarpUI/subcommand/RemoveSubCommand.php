@@ -3,6 +3,9 @@
 namespace xenialdan\WarpUI\subcommand;
 
 use pocketmine\command\CommandSender;
+use pocketmine\form\Form;
+use pocketmine\form\MenuForm;
+use pocketmine\form\MenuOption;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 use xenialdan\WarpUI\Loader;
@@ -10,11 +13,11 @@ use xenialdan\WarpUI\Loader;
 class RemoveSubCommand extends SubCommand{
 
 	public function canUse(CommandSender $sender){
-		return ($sender instanceof Player) and $sender->hasPermission("warpUI.command.remove");
+		return ($sender instanceof Player) and $sender->hasPermission("warpui.command.remove");
 	}
 
 	public function getUsage(){
-		return "remove <name>";
+		return "remove";
 	}
 
 	public function getName(){
@@ -35,13 +38,23 @@ class RemoveSubCommand extends SubCommand{
 	 * @return bool
 	 */
 	public function execute(CommandSender $sender, array $args){
-		if (empty($args)) return false;
-		$name = implode(' ', $args);
-		if (Loader::removeWarp($name)){
-			$sender->sendMessage(TextFormat::GREEN . 'Removed ' . $name . ' from the warp item');
-			return true;
-		}
-		$sender->sendMessage(TextFormat::RED . 'Incorrect warp name');
-		return false;
+		/** @var Player $sender */
+		$warps = array_map(function ($name){
+			return new MenuOption($name);
+		}, Loader::getWarps());
+		$sender->sendForm(
+			new class(TextFormat::DARK_RED . "Remove warps", "Click a warp to remove it", $warps) extends MenuForm{
+				public function onSubmit(Player $player): ?Form{
+					$selectedOption = $this->getSelectedOption()->getText();
+					if (Loader::removeWarp($selectedOption)){
+						$player->sendMessage(TextFormat::GREEN . 'Removed ' . $selectedOption . TextFormat::RESET . TextFormat::GREEN . ' from the warp item');
+					} else
+						$player->sendMessage(TextFormat::RED . 'Incorrect warp name');
+					return null;
+				}
+			}
+			, true
+		);
+		return true;
 	}
 }

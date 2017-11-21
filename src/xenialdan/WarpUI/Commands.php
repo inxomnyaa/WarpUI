@@ -19,10 +19,10 @@ class Commands extends PluginCommand{
 	private $commandObjects = [];
 
 	public function __construct(Plugin $plugin){
-		parent::__construct("warpUI", $plugin);
-		$this->setAliases(["warpUI"]);
-		$this->setPermission("warpUI.command");
-		$this->setDescription("The main commands for warpUI");
+		parent::__construct("warpui", $plugin);
+		$this->setAliases(["warpui"]);
+		$this->setPermission("warpui.command");
+		$this->setDescription("The main commands for warpui");
 
 		$this->loadSubCommand(new AddSubCommand($plugin));
 		$this->loadSubCommand(new ListSubCommand($plugin));
@@ -50,7 +50,7 @@ class Commands extends PluginCommand{
 		$canUse = $command->canUse($sender);
 		if ($canUse){
 			if (!$command->execute($sender, $args)){
-				$sender->sendMessage(TextFormat::YELLOW . "Usage: /warpUI " . $command->getName() . TextFormat::BOLD . TextFormat::DARK_AQUA . " > " . TextFormat::RESET . TextFormat::YELLOW . $command->getUsage());
+				$sender->sendMessage(TextFormat::YELLOW . "Usage: /warpui " . $command->getName() . TextFormat::BOLD . TextFormat::DARK_AQUA . " > " . TextFormat::RESET . TextFormat::YELLOW . $command->getUsage());
 			}
 		} elseif (!($sender instanceof Player)){
 			$sender->sendMessage(TextFormat::RED . "Please run this command in-game.");
@@ -61,10 +61,10 @@ class Commands extends PluginCommand{
 	}
 
 	private function sendHelp(CommandSender $sender){
-		$sender->sendMessage("===========[warpUI commands]===========");
+		$sender->sendMessage("===========[warpui commands]===========");
 		foreach ($this->commandObjects as $command){
 			if ($command->canUse($sender)){
-				$sender->sendMessage(TextFormat::DARK_GREEN . "/warpUI " . $command->getName() . TextFormat::BOLD . TextFormat::DARK_AQUA . " > " . TextFormat::RESET . TextFormat::DARK_GREEN . $command->getUsage() . ": " .
+				$sender->sendMessage(TextFormat::DARK_GREEN . "/warpui " . $command->getName() . TextFormat::BOLD . TextFormat::DARK_AQUA . " > " . TextFormat::RESET . TextFormat::DARK_GREEN . $command->getUsage() . ": " .
 					TextFormat::WHITE . $command->getDescription()
 				);
 			}

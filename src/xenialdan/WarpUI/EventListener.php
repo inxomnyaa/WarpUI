@@ -33,7 +33,7 @@ class EventListener implements Listener{
 			return new MenuOption($name);
 		}, Loader::getWarps());
 		$player->sendForm(
-			new class(TextFormat::DARK_PURPLE . "Warps", "Teleport to any warp", ...$warps) extends MenuForm{
+			new class(TextFormat::DARK_PURPLE . "Warps", "Teleport to any warp", $warps) extends MenuForm{
 				public function onSubmit(Player $player): ?Form{
 					$selectedOption = $this->getSelectedOption()->getText();
 					$location = Loader::getWarp($selectedOption);

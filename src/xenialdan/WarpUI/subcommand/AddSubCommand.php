@@ -10,7 +10,7 @@ use xenialdan\WarpUI\Loader;
 class AddSubCommand extends SubCommand{
 
 	public function canUse(CommandSender $sender){
-		return ($sender instanceof Player) and $sender->hasPermission("warpUI.command.add");
+		return ($sender instanceof Player) and $sender->hasPermission("warpui.command.add");
 	}
 
 	public function getUsage(){
