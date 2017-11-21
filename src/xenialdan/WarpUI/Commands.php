@@ -11,6 +11,7 @@ use xenialdan\WarpUI\subcommand\AddSubCommand;
 use xenialdan\WarpUI\subcommand\ListSubCommand;
 use xenialdan\WarpUI\subcommand\RemoveSubCommand;
 use xenialdan\WarpUI\subcommand\SubCommand;
+use xenialdan\WarpUI\subcommand\TeleportSubCommand;
 
 class Commands extends PluginCommand{
 	private $subCommands = [];
@@ -27,6 +28,7 @@ class Commands extends PluginCommand{
 		$this->loadSubCommand(new AddSubCommand($plugin));
 		$this->loadSubCommand(new ListSubCommand($plugin));
 		$this->loadSubCommand(new RemoveSubCommand($plugin));
+		$this->loadSubCommand(new TeleportSubCommand($plugin));
 	}
 
 	private function loadSubCommand(SubCommand $command){
