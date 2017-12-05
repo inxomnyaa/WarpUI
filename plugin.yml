@@ -1,7 +1,12 @@
-  name: WarpUI
-  main: xenialdan\WarpUI\Loader
-  version: 0.2.0
-  api: ['3.0.0-ALPHA9']
-  load: POSTWORLD
-  authors: [XenialDan]
-  prefix: "WarpUI by XenialDan"
+---
+name: WarpUI
+main: xenialdan\WarpUI\Loader
+version: 1.0.0
+api:
+- 3.0.0-ALPHA9
+- 3.0.0-ALPHA10
+load: POSTWORLD
+authors:
+- XenialDan
+prefix: WarpUI by XenialDan
+...
