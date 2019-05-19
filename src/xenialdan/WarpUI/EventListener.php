@@ -14,6 +14,7 @@ use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use xenialdan\customui\elements\Button;
 use xenialdan\customui\windows\SimpleForm;
+use xenialdan\gameapi\API;
 
 class EventListener implements Listener
 {
@@ -27,20 +28,37 @@ class EventListener implements Listener
 
     public function onInteract(PlayerInteractEvent $event)
     {
-        if (($level = ($player = $event->getPlayer())->getLevel())->getId() !== Server::getInstance()->getDefaultLevel()->getId()) return;
-        if (($item = $event->getItem())->getId() !== ItemIds::COMPASS) return;
-        $event->setCancelled();
-        $form = new SimpleForm(TextFormat::DARK_PURPLE . "Warps", "Teleport to any warp");
-        foreach (Loader::getWarps() as $warp) {
-            $form->addButton(new Button($warp));
+        $player = $event->getPlayer();
+        #if (($level = ($player = $event->getPlayer())->getLevel())->getId() !== Server::getInstance()->getDefaultLevel()->getId()) return;
+        if (($item = $event->getItem())->getId() === ItemIds::COMPASS) {
+            $event->setCancelled();
+            $form = new SimpleForm(TextFormat::DARK_PURPLE . "Warps", "Teleport to any warp");
+            foreach (Loader::getWarps() as $warp) {
+                $form->addButton(new Button($warp));
+            }
+            $form->setCallable(function (Player $player, $data) {
+                $location = Loader::getWarp($data);
+                if (!is_null($location)) $player->teleport($location);
+                else $player->sendMessage("Warp was not found. Please contact an administrator about this\nError: Warp not found\nWarpname: " . $data);
+            }
+            );
+            $player->sendForm($form);
         }
-        $form->setCallable(function (Player $player, $data) {
-            $location = Loader::getWarp($data);
-            if (!is_null($location)) $player->teleport($location);
-            else $player->sendMessage("Warp was not found. Please contact an administrator about this\nError: Warp not found\nWarpname: " . $data);
+        if (($item = $event->getItem())->getId() === ItemIds::CLOCK) {
+            $event->setCancelled();
+            $form = new SimpleForm(TextFormat::DARK_PURPLE . "Worlds", "Teleport to any world");
+            foreach (API::getAllWorlds() as $warp) {
+                $form->addButton(new Button($warp));
+            }
+            $form->setCallable(function (Player $player, $data) {
+                Loader::getInstance()->getServer()->loadLevel($data);
+                $location = Loader::getInstance()->getServer()->getLevelByName($data)->getSpawnLocation();
+                if (!is_null($location)) $player->teleport($location);
+                else $player->sendMessage("World was not found. Please contact an administrator about this\nError: Something is wrong with the world location\nWorld: " . $data);
+            }
+            );
+            $player->sendForm($form);
         }
-        );
-        $player->sendForm($form);
     }
 
     public function onJoin(PlayerJoinEvent $event)
@@ -49,15 +67,21 @@ class EventListener implements Listener
         $compass = ItemFactory::get(ItemIds::COMPASS)->setCustomName(TextFormat::DARK_PURPLE . "Warps");
         if (!$player->getInventory()->contains($compass))
             $player->getInventory()->addItem($compass);
+        $clock = ItemFactory::get(ItemIds::CLOCK)->setCustomName(TextFormat::DARK_PURPLE . "Worlds");
+        if (!$player->getInventory()->contains($clock))
+            $player->getInventory()->addItem($clock);
     }
 
     public function onLevelChange(EntityLevelChangeEvent $event)
     {
         /** @var Player $player */
-        if (!($player = $event->getEntity()) instanceof Player) return;
+        if (!($player = $event->getEntity()) instanceof Player || $event->isCancelled()) return;
         if (($level = $event->getTarget())->getId() !== Server::getInstance()->getDefaultLevel()->getId()) return;
         $compass = ItemFactory::get(ItemIds::COMPASS)->setCustomName(TextFormat::DARK_PURPLE . "Warps");
         if (!$player->getInventory()->contains($compass))
             $player->getInventory()->addItem($compass);
+        $clock = ItemFactory::get(ItemIds::CLOCK)->setCustomName(TextFormat::DARK_PURPLE . "Worlds");
+        if (!$player->getInventory()->contains($clock))
+            $player->getInventory()->addItem($clock);
     }
 }
