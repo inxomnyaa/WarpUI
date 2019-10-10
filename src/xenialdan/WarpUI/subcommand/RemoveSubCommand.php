@@ -12,6 +12,11 @@ use xenialdan\WarpUI\Loader;
 class RemoveSubCommand extends SubCommand
 {
 
+    /**
+     * @param CommandSender $sender
+     * @return bool
+     * @throws \InvalidStateException
+     */
     public function canUse(CommandSender $sender)
     {
         return ($sender instanceof Player) and $sender->hasPermission("warpui.command.remove");
@@ -41,6 +46,7 @@ class RemoveSubCommand extends SubCommand
      * @param CommandSender $sender
      * @param array $args
      * @return bool
+     * @throws \InvalidArgumentException
      */
     public function execute(CommandSender $sender, array $args)
     {

@@ -1,0 +1,6 @@
+---
+warp-item: "compass"
+give-warp-item: true
+world-item: "clock"
+give-world-item: true
+...

@@ -13,7 +13,7 @@ use xenialdan\WarpUI\subcommand\RemoveSubCommand;
 use xenialdan\WarpUI\subcommand\SubCommand;
 use xenialdan\WarpUI\subcommand\TeleportSubCommand;
 
-class Commands extends PluginCommand
+class WarpUICommands extends PluginCommand
 {
     private $subCommands = [];
 
@@ -23,7 +23,6 @@ class Commands extends PluginCommand
     public function __construct(Plugin $plugin)
     {
         parent::__construct("warpui", $plugin);
-        $this->setAliases(["warpui"]);
         $this->setPermission("warpui.command");
         $this->setDescription("The main commands for warpui");
 
@@ -43,10 +42,27 @@ class Commands extends PluginCommand
         }
     }
 
+    /**
+     * @param CommandSender $sender
+     * @param string $commandLabel
+     * @param array $args
+     * @return bool|mixed
+     * @throws \InvalidArgumentException
+     * @throws \InvalidStateException
+     */
     public function execute(CommandSender $sender, string $commandLabel, array $args)
     {
         if (!isset($args[0])) {
-            return $this->sendHelp($sender);
+            if (!$sender instanceof Player) {
+                $sender->sendMessage(TextFormat::RED . "This command must be run ingame");
+                return true;
+            }
+            if (!$sender->hasPermission($this->getPermission())) {
+                $sender->sendMessage(TextFormat::RED . "No permission");
+                return true;
+            }
+            Loader::getInstance()->showWarpUI($sender);
+            return true;
         }
         $subCommand = strtolower(array_shift($args));
         if (!isset($this->subCommands[$subCommand])) {
@@ -58,7 +74,7 @@ class Commands extends PluginCommand
             if (!$command->execute($sender, $args)) {
                 $sender->sendMessage(TextFormat::YELLOW . "Usage: /warpui " . $command->getName() . TextFormat::BOLD . TextFormat::DARK_AQUA . " > " . TextFormat::RESET . TextFormat::YELLOW . $command->getUsage());
             }
-        } elseif (!($sender instanceof Player)) {
+        } else if (!($sender instanceof Player)) {
             $sender->sendMessage(TextFormat::RED . "Please run this command in-game.");
         } else {
             $sender->sendMessage(TextFormat::RED . "You do not have permissions to run this command");

@@ -7,9 +7,13 @@ use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 use xenialdan\WarpUI\Loader;
 
-
 class ListSubCommand extends SubCommand
 {
+    /**
+     * @param CommandSender $sender
+     * @return bool
+     * @throws \InvalidStateException
+     */
     public function canUse(CommandSender $sender)
     {
         return ($sender instanceof Player) and $sender->hasPermission("warpui.command.list");
