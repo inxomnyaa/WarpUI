@@ -2,6 +2,7 @@
 
 namespace xenialdan\WarpUI\subcommand;
 
+use InvalidStateException;
 use pocketmine\command\CommandSender;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
@@ -12,7 +13,7 @@ class ListSubCommand extends SubCommand
     /**
      * @param CommandSender $sender
      * @return bool
-     * @throws \InvalidStateException
+     * @throws InvalidStateException
      */
     public function canUse(CommandSender $sender)
     {

@@ -1,10 +1,24 @@
 ---
 name: WarpUI
 main: xenialdan\WarpUI\Loader
-version: 3.1.1
-api: [3.11]
+version: 3.2.0
+api: ["3.11"]
 load: POSTWORLD
 authors:
-- XenialDan
-prefix: WarpUI by XenialDan
+  - XenialDan
+permissions:
+  warpui.warp:
+    description: "Permission to teleport to warps"
+    default: true
+    children:
+      warpui.warp.*:
+        description: "Permission for a specific warp"
+        default: op
+    warpui.world:
+      description: "Permission to teleport to worlds"
+      default: true
+      children:
+        warpui.world.*:
+          description: "Permission for a specific world"
+          default: op
 ...

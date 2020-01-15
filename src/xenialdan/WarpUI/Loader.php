@@ -2,11 +2,14 @@
 
 namespace xenialdan\WarpUI;
 
+use InvalidArgumentException;
+use InvalidStateException;
 use pocketmine\level\format\io\LevelProvider;
 use pocketmine\level\format\io\LevelProviderManager;
 use pocketmine\level\Location;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
+use pocketmine\plugin\PluginException;
 use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat;
 use xenialdan\customui\elements\Button;
@@ -27,14 +30,14 @@ class Loader extends PluginBase
     }
 
     /**
-     * @throws \pocketmine\plugin\PluginException
+     * @throws PluginException
      */
     public function onEnable()
     {
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
         $this->getServer()->getCommandMap()->registerAll("WarpUI", [
-            new WarpUICommands($this),
-            new WorldUICommands($this)]
+                new WarpUICommands($this),
+                new WorldUICommands($this)]
         );
     }
 
@@ -51,7 +54,7 @@ class Loader extends PluginBase
      * @param Location $location
      * @param string $name
      * @return bool
-     * @throws \InvalidStateException
+     * @throws InvalidStateException
      */
     public static function addWarp(Location $location, string $name): bool
     {
@@ -82,7 +85,7 @@ class Loader extends PluginBase
     /**
      * @param $name
      * @return bool
-     * @throws \InvalidStateException
+     * @throws InvalidStateException
      */
     public static function removeWarp($name)
     {
@@ -94,18 +97,23 @@ class Loader extends PluginBase
 
     /**
      * @param Player $player
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function showWarpUI(Player $player): void
     {
-        $form = new SimpleForm(TextFormat::DARK_PURPLE . "Warps", "Teleport to any warp");
+        $form = new SimpleForm(TextFormat::DARK_PURPLE . "Warps", "Click to teleport to a warp");
         foreach (Loader::getWarps() as $warp) {
-            $form->addButton(new Button($warp));
+            if ($player->hasPermission("warpui.warp." . TextFormat::clean(strtolower($warp))))
+                $form->addButton(new Button($warp));
         }
         $form->setCallable(function (Player $player, $data) {
-            $location = Loader::getWarp($data);
-            if (!is_null($location)) $player->teleport($location);
-            else $player->sendMessage("Warp was not found. Please contact an administrator about this\nError: Warp not found\nWarpname: " . $data);
+            if ($player->hasPermission("warpui.warp." . TextFormat::clean(strtolower($data)))) {
+                $location = Loader::getWarp($data);
+                if (!is_null($location)) $player->teleport($location);
+                else $player->sendMessage("Warp was not found. Please contact an administrator about this\nError: Warp not found\nWarpname: " . $data);
+            } else {
+                $player->sendMessage(TextFormat::RED . "You do not have permission to go to the warp $data");
+            }
         }
         );
         $player->sendForm($form);
@@ -113,19 +121,26 @@ class Loader extends PluginBase
 
     /**
      * @param Player $player
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function showWorldUI(Player $player): void
     {
-        $form = new SimpleForm(TextFormat::DARK_PURPLE . "Worlds", "Teleport to any world");
-        foreach (self::getAllWorlds() as $warp) {
-            $form->addButton(new Button($warp));
+        $form = new SimpleForm(TextFormat::DARK_PURPLE . "Worlds", "Click to teleport to a world");
+        foreach (self::getAllWorlds() as $world) {
+            if ($player->hasPermission("warpui.world." . TextFormat::clean(strtolower($world))))
+                $form->addButton(new Button($world));
         }
         $form->setCallable(function (Player $player, $data) {
-            Loader::getInstance()->getServer()->loadLevel($data);
-            $location = Loader::getInstance()->getServer()->getLevelByName($data)->getSpawnLocation();
-            if (!is_null($location)) $player->teleport($location);
-            else $player->sendMessage("World was not found. Please contact an administrator about this\nError: Something is wrong with the world location\nWorld: " . $data);
+            if ($player->hasPermission("warpui.world." . TextFormat::clean(strtolower($data)))) {
+                Loader::getInstance()->getServer()->loadLevel($data);
+                $level = Loader::getInstance()->getServer()->getLevelByName($data);
+                if (!is_null($level)) {
+                    $location = $level->getSpawnLocation();
+                    $player->teleport($location);
+                } else $player->sendMessage("World was not found. Please contact an administrator about this\nError: No world with the name " . $data . " was found. Make sure to use the folder name");
+            } else {
+                $player->sendMessage(TextFormat::RED . "You do not have permission to go to the world $data");
+            }
         }
         );
         $player->sendForm($form);
@@ -143,10 +158,11 @@ class Loader extends PluginBase
         foreach ($glob as $path) {
             $path .= DIRECTORY_SEPARATOR;
             $provider = LevelProviderManager::getProvider($path);
-            if ($provider !== \null) {
+            if ($provider !== null) {
                 /** @var LevelProvider $c */
                 $c = (new $provider($path));
                 $worldNames[] = $c->getName();
+                unset($provider);
             }
         }
         sort($worldNames);

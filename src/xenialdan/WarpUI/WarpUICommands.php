@@ -2,6 +2,8 @@
 
 namespace xenialdan\WarpUI;
 
+use InvalidArgumentException;
+use InvalidStateException;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
 use pocketmine\Player;
@@ -47,8 +49,8 @@ class WarpUICommands extends PluginCommand
      * @param string $commandLabel
      * @param array $args
      * @return bool|mixed
-     * @throws \InvalidArgumentException
-     * @throws \InvalidStateException
+     * @throws InvalidArgumentException
+     * @throws InvalidStateException
      */
     public function execute(CommandSender $sender, string $commandLabel, array $args)
     {

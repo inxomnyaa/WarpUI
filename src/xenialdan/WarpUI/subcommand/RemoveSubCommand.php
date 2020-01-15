@@ -2,6 +2,8 @@
 
 namespace xenialdan\WarpUI\subcommand;
 
+use InvalidArgumentException;
+use InvalidStateException;
 use pocketmine\command\CommandSender;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
@@ -15,7 +17,7 @@ class RemoveSubCommand extends SubCommand
     /**
      * @param CommandSender $sender
      * @return bool
-     * @throws \InvalidStateException
+     * @throws InvalidStateException
      */
     public function canUse(CommandSender $sender)
     {
@@ -46,7 +48,7 @@ class RemoveSubCommand extends SubCommand
      * @param CommandSender $sender
      * @param array $args
      * @return bool
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function execute(CommandSender $sender, array $args)
     {
