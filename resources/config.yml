@@ -1,6 +1,14 @@
 ---
+# Item name
 warp-item: "compass"
+# Custom name
+warp-item-name: "§dWarps"
 give-warp-item: true
+# Item name
 world-item: "clock"
+# Custom name
+world-item-name: "§dWorlds"
 give-world-item: true
+# The worlds to give the items in. Example: ["world"]
+worlds: []
 ...

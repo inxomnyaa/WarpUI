@@ -22,7 +22,7 @@ class Loader extends PluginBase
     public function onLoad()
     {
         self::$instance = $this;
-        #$this->saveDefaultConfig();
+        $this->saveDefaultConfig();
         $this->warps = new Config($this->getDataFolder() . "warps.yml");
     }
 
@@ -32,8 +32,10 @@ class Loader extends PluginBase
     public function onEnable()
     {
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
-        $this->getServer()->getCommandMap()->register("WarpUI", new WarpUICommands($this));
-        $this->getServer()->getCommandMap()->register("WarpUI", new WorldUICommands($this));
+        $this->getServer()->getCommandMap()->registerAll("WarpUI", [
+            new WarpUICommands($this),
+            new WorldUICommands($this)]
+        );
     }
 
     /**
