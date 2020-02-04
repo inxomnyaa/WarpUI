@@ -103,11 +103,11 @@ class Loader extends PluginBase
     {
         $form = new SimpleForm(TextFormat::DARK_PURPLE . "Warps", "Click to teleport to a warp");
         foreach (Loader::getWarps() as $warp) {
-            if ($player->hasPermission("warpui.warp." . TextFormat::clean(strtolower($warp))))
+            if ($player->hasPermission("warpui.warp") or $player->hasPermission("warpui.warp.*") or $player->hasPermission("warpui.warp." . TextFormat::clean(strtolower($warp))))
                 $form->addButton(new Button($warp));
         }
         $form->setCallable(function (Player $player, $data) {
-            if ($player->hasPermission("warpui.warp." . TextFormat::clean(strtolower($data)))) {
+            if ($player->hasPermission("warpui.warp") or $player->hasPermission("warpui.warp.*") or $player->hasPermission("warpui.warp." . TextFormat::clean(strtolower($data)))) {
                 $location = Loader::getWarp($data);
                 if (!is_null($location)) $player->teleport($location);
                 else $player->sendMessage("Warp was not found. Please contact an administrator about this\nError: Warp not found\nWarpname: " . $data);
@@ -127,11 +127,11 @@ class Loader extends PluginBase
     {
         $form = new SimpleForm(TextFormat::DARK_PURPLE . "Worlds", "Click to teleport to a world");
         foreach (self::getAllWorlds() as $world) {
-            if ($player->hasPermission("warpui.world." . TextFormat::clean(strtolower($world))))
+            if ($player->hasPermission("warpui.world") or $player->hasPermission("warpui.world.*") or $player->hasPermission("warpui.world." . TextFormat::clean(strtolower($world))))
                 $form->addButton(new Button($world));
         }
         $form->setCallable(function (Player $player, $data) {
-            if ($player->hasPermission("warpui.world." . TextFormat::clean(strtolower($data)))) {
+            if ($player->hasPermission("warpui.world") or $player->hasPermission("warpui.world.*") or $player->hasPermission("warpui.world." . TextFormat::clean(strtolower($data)))) {
                 Loader::getInstance()->getServer()->loadLevel($data);
                 $level = Loader::getInstance()->getServer()->getLevelByName($data);
                 if (!is_null($level)) {
