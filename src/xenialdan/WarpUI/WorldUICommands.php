@@ -16,8 +16,8 @@ class WorldUICommands extends PluginCommand
     public function __construct(Plugin $plugin)
     {
         parent::__construct("worldui", $plugin);
-        $this->setPermission("worldui.command");
-        $this->setDescription("The main commands for worldui");
+        $this->setPermission("warpui.command.world");
+        $this->setDescription("Shows the world teleport UI");
     }
 
     /**

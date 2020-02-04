@@ -25,8 +25,8 @@ class WarpUICommands extends PluginCommand
     public function __construct(Plugin $plugin)
     {
         parent::__construct("warpui", $plugin);
-        $this->setPermission("warpui.command");
-        $this->setDescription("The main commands for warpui");
+        $this->setPermission("warpui.command.warp");
+        $this->setDescription("Manages warps of WarpUI");
 
         $this->loadSubCommand(new AddSubCommand($plugin));
         $this->loadSubCommand(new ListSubCommand($plugin));
@@ -86,7 +86,7 @@ class WarpUICommands extends PluginCommand
 
     private function sendHelp(CommandSender $sender)
     {
-        $sender->sendMessage("===========[warpui commands]===========");
+        $sender->sendMessage("===========[WarpUI commands]===========");
         foreach ($this->commandObjects as $command) {
             if ($command->canUse($sender)) {
                 $sender->sendMessage(TextFormat::DARK_GREEN . "/warpui " . $command->getName() . TextFormat::BOLD . TextFormat::DARK_AQUA . " > " . TextFormat::RESET . TextFormat::DARK_GREEN . $command->getUsage() . ": " .

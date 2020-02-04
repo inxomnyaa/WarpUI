@@ -21,7 +21,7 @@ class RemoveSubCommand extends SubCommand
      */
     public function canUse(CommandSender $sender)
     {
-        return ($sender instanceof Player) and $sender->hasPermission("warpui.command.remove");
+        return ($sender instanceof Player) and $sender->hasPermission("warpui.command.warp.remove");
     }
 
     public function getUsage()

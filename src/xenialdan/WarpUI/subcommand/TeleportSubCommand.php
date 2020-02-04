@@ -17,7 +17,7 @@ class TeleportSubCommand extends SubCommand
      */
     public function canUse(CommandSender $sender)
     {
-        return ($sender instanceof Player) and $sender->hasPermission("warpui.command.teleport");
+        return ($sender instanceof Player) and $sender->hasPermission("warpui.command.warp.teleport");
     }
 
     public function getUsage()
@@ -51,7 +51,7 @@ class TeleportSubCommand extends SubCommand
         if (empty($args)) return false;
         /** @var Player $sender */
         $warpname = implode(" ", $args);
-        if ($sender->hasPermission("warpui.warp." . TextFormat::clean($warpname))) {
+        if ($sender->hasPermission("warpui.world") or $sender->hasPermission("warpui.world.*") or $sender->hasPermission("warpui.world." . TextFormat::clean(strtolower($warpname)))) {
             $location = Loader::getWarp($warpname);
             if (!is_null($location)) {
                 if ($sender->teleport($location)) {

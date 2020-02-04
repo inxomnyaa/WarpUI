@@ -17,7 +17,7 @@ class ListSubCommand extends SubCommand
      */
     public function canUse(CommandSender $sender)
     {
-        return ($sender instanceof Player) and $sender->hasPermission("warpui.command.list");
+        return ($sender instanceof Player) and $sender->hasPermission("warpui.command.warp.list");
     }
 
     public function getUsage()

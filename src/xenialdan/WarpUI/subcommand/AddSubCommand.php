@@ -18,7 +18,7 @@ class AddSubCommand extends SubCommand
      */
     public function canUse(CommandSender $sender)
     {
-        return ($sender instanceof Player) and $sender->hasPermission("warpui.command.add");
+        return ($sender instanceof Player) and $sender->hasPermission("warpui.command.warp.add");
     }
 
     public function getUsage()
