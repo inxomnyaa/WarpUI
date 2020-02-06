@@ -155,12 +155,12 @@ class Loader extends PluginBase
         $worldNames = [];
         $glob = glob(Loader::getInstance()->getServer()->getDataPath() . "worlds/*", GLOB_ONLYDIR);
         if ($glob === false) return $worldNames;
-        //hack to fix "File in use" with leveldb. TODO find proper replacement
-        return array_map(function ($path) {
-            return basename($path);
-        }, $glob);
         foreach ($glob as $path) {
             $path .= DIRECTORY_SEPARATOR;
+            if (Loader::getInstance()->getServer()->isLevelLoaded(basename($path))) {
+                $worldNames[] = Loader::getInstance()->getServer()->getLevelByName(basename($path))->getName();
+                continue;
+            }
             $provider = LevelProviderManager::getProvider($path);
             if ($provider !== null) {
                 /** @var LevelProvider $c */

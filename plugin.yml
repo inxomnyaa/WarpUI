@@ -1,7 +1,7 @@
 ---
 name: WarpUI
 main: xenialdan\WarpUI\Loader
-version: 3.3.0
+version: 3.3.1
 api: ["3.11"]
 load: POSTWORLD
 authors:
