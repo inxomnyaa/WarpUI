@@ -4,6 +4,7 @@ namespace xenialdan\WarpUI\subcommand;
 
 use InvalidStateException;
 use pocketmine\command\CommandSender;
+use pocketmine\level\LevelException;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 use xenialdan\WarpUI\Loader;
@@ -15,27 +16,27 @@ class TeleportSubCommand extends SubCommand
      * @return bool
      * @throws InvalidStateException
      */
-    public function canUse(CommandSender $sender)
+    public function canUse(CommandSender $sender): bool
     {
-        return ($sender instanceof Player) and $sender->hasPermission("warpui.command.warp.teleport");
+        return ($sender instanceof Player) and $sender->hasPermission('warpui.command.warp.teleport');
     }
 
-    public function getUsage()
+    public function getUsage(): string
     {
-        return "teleport <warp name>";
+        return 'teleport <warp name>';
     }
 
-    public function getName()
+    public function getName(): string
     {
-        return "teleport";
+        return 'teleport';
     }
 
-    public function getDescription()
+    public function getDescription(): string
     {
-        return "Teleport to a warp via name";
+        return 'Teleport to a warp via name';
     }
 
-    public function getAliases()
+    public function getAliases(): array
     {
         return [];
     }
@@ -45,17 +46,24 @@ class TeleportSubCommand extends SubCommand
      * @param array $args
      * @return bool
      * @throws InvalidStateException
+     * @throws LevelException
      */
-    public function execute(CommandSender $sender, array $args)
+    public function execute(CommandSender $sender, array $args): bool
     {
-        if (empty($args)) return false;
+        if (empty($args)) {
+            return false;
+        }
         /** @var Player $sender */
-        $warpname = implode(" ", $args);
-        if ($sender->hasPermission("warpui.world") or $sender->hasPermission("warpui.world.*") or $sender->hasPermission("warpui.world." . TextFormat::clean(strtolower($warpname)))) {
+        $warpname = implode(' ', $args);
+        if ($sender->hasPermission('warpui.world') || $sender->hasPermission('warpui.world.*') || $sender->hasPermission('warpui.world.' . TextFormat::clean(strtolower($warpname)))) {
             $location = Loader::getWarp($warpname);
-            if (!is_null($location)) {
+            if ($location !== null) {
+                if (!$location->isValid()) {
+                    $sender->sendMessage(TextFormat::RED . 'Target level is not loaded yet. Try again.');
+                    return true;
+                }
                 if ($sender->teleport($location)) {
-                    $sender->sendMessage(TextFormat::GREEN . "Teleported to " . $warpname);
+                    $sender->sendMessage(TextFormat::GREEN . 'Teleported to ' . $warpname);
                 }
             }
         } else {

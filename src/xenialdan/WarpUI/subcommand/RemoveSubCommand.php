@@ -19,27 +19,27 @@ class RemoveSubCommand extends SubCommand
      * @return bool
      * @throws InvalidStateException
      */
-    public function canUse(CommandSender $sender)
+    public function canUse(CommandSender $sender): bool
     {
-        return ($sender instanceof Player) and $sender->hasPermission("warpui.command.warp.remove");
+        return ($sender instanceof Player) and $sender->hasPermission('warpui.command.warp.remove');
     }
 
-    public function getUsage()
+    public function getUsage(): string
     {
-        return "remove";
+        return 'remove';
     }
 
-    public function getName()
+    public function getName(): string
     {
-        return "remove";
+        return 'remove';
     }
 
-    public function getDescription()
+    public function getDescription(): string
     {
-        return "Remove a warp";
+        return 'Remove a warp';
     }
 
-    public function getAliases()
+    public function getAliases(): array
     {
         return [];
     }
@@ -50,18 +50,19 @@ class RemoveSubCommand extends SubCommand
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function execute(CommandSender $sender, array $args)
+    public function execute(CommandSender $sender, array $args): bool
     {
         /** @var Player $sender */
-        $form = new SimpleForm(TextFormat::DARK_RED . "Remove warps", "Click a warp to remove it");
+        $form = new SimpleForm(TextFormat::DARK_RED . 'Remove warps', 'Click a warp to remove it');
         foreach (Loader::getWarps() as $warp) {
             $form->addButton(new Button($warp));
         }
-        $form->setCallable(function (Player $player, $data) {
+        $form->setCallable(static function (Player $player, $data) {
             if (Loader::removeWarp($data)) {
                 $player->sendMessage(TextFormat::GREEN . 'Removed ' . $data . TextFormat::RESET . TextFormat::GREEN . ' from the warp item');
-            } else
+            } else {
                 $player->sendMessage(TextFormat::RED . 'Incorrect warp name');
+            }
         }
         );
         $sender->sendForm($form);

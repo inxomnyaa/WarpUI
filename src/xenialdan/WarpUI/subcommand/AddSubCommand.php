@@ -16,27 +16,27 @@ class AddSubCommand extends SubCommand
      * @return bool
      * @throws InvalidStateException
      */
-    public function canUse(CommandSender $sender)
+    public function canUse(CommandSender $sender): bool
     {
-        return ($sender instanceof Player) and $sender->hasPermission("warpui.command.warp.add");
+        return ($sender instanceof Player) and $sender->hasPermission('warpui.command.warp.add');
     }
 
-    public function getUsage()
+    public function getUsage(): string
     {
-        return "add <name>";
+        return 'add <name>';
     }
 
-    public function getName()
+    public function getName(): string
     {
-        return "add";
+        return 'add';
     }
 
-    public function getDescription()
+    public function getDescription(): string
     {
-        return "Add a warp point";
+        return 'Add a warp point';
     }
 
-    public function getAliases()
+    public function getAliases(): array
     {
         return [];
     }
@@ -47,15 +47,19 @@ class AddSubCommand extends SubCommand
      * @return bool
      * @throws InvalidStateException
      */
-    public function execute(CommandSender $sender, array $args)
+    public function execute(CommandSender $sender, array $args): bool
     {
-        if (empty($args)) return false;
+        if (empty($args)) {
+            return false;
+        }
         $name = implode(' ', $args);
         /** @var Player $sender */
         $location = $sender->getLocation();
         if (Loader::addWarp($location, $name)) {
             $sender->sendMessage(TextFormat::GREEN . 'Added ' . $name . ' at ' . $location . ' to the warp item');
             return true;
-        } else return false;
+        }
+
+        return false;
     }
 }

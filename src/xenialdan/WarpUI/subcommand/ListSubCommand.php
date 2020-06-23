@@ -15,27 +15,27 @@ class ListSubCommand extends SubCommand
      * @return bool
      * @throws InvalidStateException
      */
-    public function canUse(CommandSender $sender)
+    public function canUse(CommandSender $sender): bool
     {
-        return ($sender instanceof Player) and $sender->hasPermission("warpui.command.warp.list");
+        return ($sender instanceof Player) and $sender->hasPermission('warpui.command.warp.list');
     }
 
-    public function getUsage()
+    public function getUsage(): string
     {
-        return "list";
+        return 'list';
     }
 
-    public function getName()
+    public function getName(): string
     {
-        return "list";
+        return 'list';
     }
 
-    public function getDescription()
+    public function getDescription(): string
     {
-        return "Listing all warp names";
+        return 'Listing all warp names';
     }
 
-    public function getAliases()
+    public function getAliases(): array
     {
         return [];
     }
@@ -45,7 +45,7 @@ class ListSubCommand extends SubCommand
      * @param array $args
      * @return bool
      */
-    public function execute(CommandSender $sender, array $args)
+    public function execute(CommandSender $sender, array $args): bool
     {
         $sender->sendMessage(TextFormat::AQUA . "Warpnames:\n" . implode("\n" . TextFormat::GOLD, Loader::getWarps()));
         return true;

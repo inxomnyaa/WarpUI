@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use InvalidStateException;
 use pocketmine\level\format\io\LevelProvider;
 use pocketmine\level\format\io\LevelProviderManager;
+use pocketmine\level\LevelException;
 use pocketmine\level\Location;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
@@ -18,24 +19,24 @@ use xenialdan\customui\windows\SimpleForm;
 class Loader extends PluginBase
 {
     /** @var Loader */
-    private static $instance = null;
+    private static $instance;
     /** @var Config */
     private $warps;
 
-    public function onLoad()
+    public function onLoad(): void
     {
         self::$instance = $this;
         $this->saveDefaultConfig();
-        $this->warps = new Config($this->getDataFolder() . "warps.yml");
+        $this->warps = new Config($this->getDataFolder() . 'warps.yml');
     }
 
     /**
      * @throws PluginException
      */
-    public function onEnable()
+    public function onEnable(): void
     {
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
-        $this->getServer()->getCommandMap()->registerAll("WarpUI", [
+        $this->getServer()->getCommandMap()->registerAll('WarpUI', [
                 new WarpUICommands($this),
                 new WorldUICommands($this)]
         );
@@ -45,7 +46,7 @@ class Loader extends PluginBase
      * Returns an instance of the plugin
      * @return Loader
      */
-    public static function getInstance()
+    public static function getInstance(): Loader
     {
         return self::$instance;
     }
@@ -58,7 +59,7 @@ class Loader extends PluginBase
      */
     public static function addWarp(Location $location, string $name): bool
     {
-        self::getInstance()->warps->set($name, ["x" => $location->getX(), "y" => $location->getY(), "z" => $location->getZ(), "levelname" => $location->getLevel()->getName(), "yaw" => $location->getYaw(), "pitch" => $location->getPitch()]);
+        self::getInstance()->warps->set($name, ['x' => $location->getX(), 'y' => $location->getY(), 'z' => $location->getZ(), 'levelname' => $location->getLevel()->getName(), 'yaw' => $location->getYaw(), 'pitch' => $location->getPitch()]);
         self::getInstance()->warps->save();
         return true;
     }
@@ -66,18 +67,22 @@ class Loader extends PluginBase
     /**
      * @param string $name
      * @return null|Location
+     * @throws LevelException
      */
     public static function getWarp(string $name): ?Location
     {
         $values = self::getInstance()->warps->get($name);
-        if ($values === false) return null;
-        return new Location($values["x"], $values["y"], $values["z"], $values["yaw"], $values["pitch"], Loader::getInstance()->getServer()->getLevelByName($values["levelname"]));
+        if ($values === false) {
+            return null;
+        }
+        self::getInstance()->getServer()->loadLevel($values['levelname']);
+        return new Location($values['x'], $values['y'], $values['z'], $values['yaw'], $values['pitch'], self::getInstance()->getServer()->getLevelByName($values['levelname']));
     }
 
     /**
      * @return string[]
      */
-    public static function getWarps()
+    public static function getWarps(): array
     {
         return self::getInstance()->warps->getAll(true);
     }
@@ -87,9 +92,11 @@ class Loader extends PluginBase
      * @return bool
      * @throws InvalidStateException
      */
-    public static function removeWarp($name)
+    public static function removeWarp($name): bool
     {
-        if (self::getInstance()->warps->get($name) === false) return false;
+        if (self::getInstance()->warps->get($name) === false) {
+            return false;
+        }
         self::getInstance()->warps->remove($name);
         self::getInstance()->warps->save();
         return true;
@@ -101,16 +108,24 @@ class Loader extends PluginBase
      */
     public function showWarpUI(Player $player): void
     {
-        $form = new SimpleForm(TextFormat::DARK_PURPLE . "Warps", "Click to teleport to a warp");
-        foreach (Loader::getWarps() as $warp) {
-            if ($player->hasPermission("warpui.warp") or $player->hasPermission("warpui.warp.*") or $player->hasPermission("warpui.warp." . TextFormat::clean(strtolower($warp))))
+        $form = new SimpleForm(TextFormat::DARK_PURPLE . 'Warps', 'Click to teleport to a warp');
+        foreach (self::getWarps() as $warp) {
+            if ($player->hasPermission('warpui.warp') || $player->hasPermission('warpui.warp.*') || $player->hasPermission('warpui.warp.' . TextFormat::clean(strtolower($warp)))) {
                 $form->addButton(new Button($warp));
+            }
         }
-        $form->setCallable(function (Player $player, $data) {
-            if ($player->hasPermission("warpui.warp") or $player->hasPermission("warpui.warp.*") or $player->hasPermission("warpui.warp." . TextFormat::clean(strtolower($data)))) {
+        $form->setCallable(static function (Player $player, $data) {
+            if ($player->hasPermission('warpui.warp') || $player->hasPermission('warpui.warp.*') || $player->hasPermission('warpui.warp.' . TextFormat::clean(strtolower($data)))) {
                 $location = Loader::getWarp($data);
-                if (!is_null($location)) $player->teleport($location);
-                else $player->sendMessage("Warp was not found. Please contact an administrator about this\nError: Warp not found\nWarpname: " . $data);
+                if ($location !== null) {
+                    if (!$location->isValid()) {
+                        $player->sendMessage(TextFormat::RED . 'Target level is not loaded yet. Try again.');
+                        return;
+                    }
+                    $player->teleport($location);
+                } else {
+                    $player->sendMessage("Warp was not found. Please contact an administrator about this\nError: Warp not found\nWarpname: " . $data);
+                }
             } else {
                 $player->sendMessage(TextFormat::RED . "You do not have permission to go to the warp $data");
             }
@@ -125,19 +140,22 @@ class Loader extends PluginBase
      */
     public function showWorldUI(Player $player): void
     {
-        $form = new SimpleForm(TextFormat::DARK_PURPLE . "Worlds", "Click to teleport to a world");
+        $form = new SimpleForm(TextFormat::DARK_PURPLE . 'Worlds', 'Click to teleport to a world');
         foreach (self::getAllWorlds() as $world) {
-            if ($player->hasPermission("warpui.world") or $player->hasPermission("warpui.world.*") or $player->hasPermission("warpui.world." . TextFormat::clean(strtolower($world))))
+            if ($player->hasPermission('warpui.world') || $player->hasPermission('warpui.world.*') || $player->hasPermission('warpui.world.' . TextFormat::clean(strtolower($world)))) {
                 $form->addButton(new Button($world));
+            }
         }
-        $form->setCallable(function (Player $player, $data) {
-            if ($player->hasPermission("warpui.world") or $player->hasPermission("warpui.world.*") or $player->hasPermission("warpui.world." . TextFormat::clean(strtolower($data)))) {
+        $form->setCallable(static function (Player $player, $data) {
+            if ($player->hasPermission('warpui.world') || $player->hasPermission('warpui.world.*') || $player->hasPermission('warpui.world.' . TextFormat::clean(strtolower($data)))) {
                 Loader::getInstance()->getServer()->loadLevel($data);
                 $level = Loader::getInstance()->getServer()->getLevelByName($data);
-                if (!is_null($level)) {
+                if ($level !== null) {
                     $location = $level->getSpawnLocation();
                     $player->teleport($location);
-                } else $player->sendMessage("World was not found. Please contact an administrator about this\nError: No world with the name " . $data . " was found. Make sure to use the folder name");
+                } else {
+                    $player->sendMessage("World was not found. Please contact an administrator about this\nError: No world with the name " . $data . ' was found. Make sure to use the folder name');
+                }
             } else {
                 $player->sendMessage(TextFormat::RED . "You do not have permission to go to the world $data");
             }
@@ -153,12 +171,14 @@ class Loader extends PluginBase
     private static function getAllWorlds(): array
     {
         $worldNames = [];
-        $glob = glob(Loader::getInstance()->getServer()->getDataPath() . "worlds/*", GLOB_ONLYDIR);
-        if ($glob === false) return $worldNames;
+        $glob = glob(self::getInstance()->getServer()->getDataPath() . 'worlds/*', GLOB_ONLYDIR);
+        if ($glob === false) {
+            return $worldNames;
+        }
         foreach ($glob as $path) {
             $path .= DIRECTORY_SEPARATOR;
-            if (Loader::getInstance()->getServer()->isLevelLoaded(basename($path))) {
-                $worldNames[] = Loader::getInstance()->getServer()->getLevelByName(basename($path))->getName();
+            if (self::getInstance()->getServer()->isLevelLoaded(basename($path))) {
+                $worldNames[] = self::getInstance()->getServer()->getLevelByName(basename($path))->getName();
                 continue;
             }
             $provider = LevelProviderManager::getProvider($path);
