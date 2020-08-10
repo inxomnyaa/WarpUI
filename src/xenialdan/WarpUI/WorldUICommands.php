@@ -40,6 +40,21 @@ class WorldUICommands extends Command implements PluginOwned
             $sender->sendMessage(TextFormat::RED . 'No permission');
             return true;
         }
+        //TODO cleanup, very sloppy. I just need something that works, urgent
+        if (count($args) >= 1) {
+            if (is_string(($world = $args[0]))) {
+                if ($sender->hasPermission("warpui.world.$world")) {
+                    if ($this->owningPlugin->getServer()->getWorldManager()->loadWorld($world)) {
+                        $sender->teleport($this->owningPlugin->getServer()->getWorldManager()->getWorldByName($world)->getSpawnLocation());
+                    } else {
+                        $sender->sendMessage(TextFormat::RED . 'World not found');
+                    }
+                } else {
+                    $sender->sendMessage(TextFormat::RED . 'No permission');
+                }
+            }
+            return true;
+        }
         Loader::getInstance()->showWorldUI($sender);
         return true;
     }
