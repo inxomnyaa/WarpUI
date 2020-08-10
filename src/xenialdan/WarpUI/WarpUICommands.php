@@ -25,16 +25,17 @@ class WarpUICommands extends Command implements PluginOwned
     /* @var SubCommand[] */
     private $commandObjects = [];
 
-    public function __construct(Plugin $plugin)
+    public function __construct(Plugin $owningPlugin)
     {
-        parent::__construct('warpui', $plugin);
+        $this->owningPlugin = $owningPlugin;
+        parent::__construct('warpui');
         $this->setPermission('warpui.command.warp');
         $this->setDescription('Manages warps of WarpUI');
 
-        $this->loadSubCommand(new AddSubCommand($plugin));
-        $this->loadSubCommand(new ListSubCommand($plugin));
-        $this->loadSubCommand(new RemoveSubCommand($plugin));
-        $this->loadSubCommand(new TeleportSubCommand($plugin));
+        $this->loadSubCommand(new AddSubCommand($owningPlugin));
+        $this->loadSubCommand(new ListSubCommand($owningPlugin));
+        $this->loadSubCommand(new RemoveSubCommand($owningPlugin));
+        $this->loadSubCommand(new TeleportSubCommand($owningPlugin));
     }
 
     private function loadSubCommand(SubCommand $command): void

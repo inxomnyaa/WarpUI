@@ -3,28 +3,12 @@
 namespace xenialdan\WarpUI\subcommand;
 
 use pocketmine\command\CommandSender;
-use pocketmine\plugin\Plugin;
+use pocketmine\plugin\PluginOwned;
+use pocketmine\plugin\PluginOwnedTrait;
 
-abstract class SubCommand
+abstract class SubCommand implements PluginOwned
 {
-    /** @var Plugin */
-    private $plugin;
-
-    /**
-     * @param Plugin $plugin
-     */
-    public function __construct(Plugin $plugin)
-    {
-        $this->plugin = $plugin;
-    }
-
-    /**
-     * @return Plugin
-     */
-    final public function getPlugin(): Plugin
-    {
-        return $this->plugin;
-    }
+    use PluginOwnedTrait;
 
     /**
      * @param CommandSender $sender

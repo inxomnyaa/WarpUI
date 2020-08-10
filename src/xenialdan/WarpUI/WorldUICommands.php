@@ -15,9 +15,10 @@ class WorldUICommands extends Command implements PluginOwned
 {
     use PluginOwnedTrait;
 
-    public function __construct(Plugin $plugin)
+    public function __construct(Plugin $owningPlugin)
     {
-        parent::__construct('worldui', $plugin);
+        $this->owningPlugin = $owningPlugin;
+        parent::__construct('worldui');
         $this->setPermission('warpui.command.world');
         $this->setDescription('Shows the world teleport UI');
     }
