@@ -5,7 +5,6 @@ namespace xenialdan\WarpUI\subcommand;
 use InvalidStateException;
 use pocketmine\command\CommandSender;
 use pocketmine\level\LevelException;
-use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 use xenialdan\WarpUI\Loader;
 
@@ -55,7 +54,7 @@ class TeleportSubCommand extends SubCommand
         }
         /** @var Player $sender */
         $warpname = implode(' ', $args);
-        if ($sender->hasPermission('warpui.world') || $sender->hasPermission('warpui.world.*') || $sender->hasPermission('warpui.world.' . TextFormat::clean(strtolower($warpname)))) {
+        if ($sender->hasPermission('warpui.warp') || $sender->hasPermission('warpui.warp.*') || $sender->hasPermission('warpui.warp.' . TextFormat::clean(strtolower($warpname)))) {
             $location = Loader::getWarp($warpname);
             if ($location !== null) {
                 if (!$location->isValid()) {
