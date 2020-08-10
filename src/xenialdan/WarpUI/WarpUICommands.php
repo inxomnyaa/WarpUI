@@ -3,11 +3,12 @@
 namespace xenialdan\WarpUI;
 
 use InvalidArgumentException;
-use InvalidStateException;
+use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginCommand;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
+use pocketmine\plugin\PluginOwned;
+use pocketmine\plugin\PluginOwnedTrait;
 use pocketmine\utils\TextFormat;
 use xenialdan\WarpUI\subcommand\AddSubCommand;
 use xenialdan\WarpUI\subcommand\ListSubCommand;
@@ -15,8 +16,10 @@ use xenialdan\WarpUI\subcommand\RemoveSubCommand;
 use xenialdan\WarpUI\subcommand\SubCommand;
 use xenialdan\WarpUI\subcommand\TeleportSubCommand;
 
-class WarpUICommands extends PluginCommand
+class WarpUICommands extends Command implements PluginOwned
 {
+    use PluginOwnedTrait;
+
     private $subCommands = [];
 
     /* @var SubCommand[] */
@@ -50,7 +53,6 @@ class WarpUICommands extends PluginCommand
      * @param array $args
      * @return bool|mixed
      * @throws InvalidArgumentException
-     * @throws InvalidStateException
      */
     public function execute(CommandSender $sender, string $commandLabel, array $args)
     {

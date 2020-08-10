@@ -3,12 +3,13 @@
 namespace xenialdan\WarpUI;
 
 use InvalidArgumentException;
-use pocketmine\event\entity\EntityLevelChangeEvent;
+use pocketmine\event\entity\EntityTeleportEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\item\Item;
-use pocketmine\Player;
+use pocketmine\item\LegacyStringToItemParser;
+use pocketmine\player\Player;
 
 /**
  * Class EventListener
@@ -48,12 +49,12 @@ class EventListener implements Listener
 
     public function getWarpItem(): Item
     {
-        return Item::fromString($this->getWarpItemType())->setCustomName($this->getWarpItemName());
+        return LegacyStringToItemParser::getInstance()->parse($this->getWarpItemType())->setCustomName($this->getWarpItemName());
     }
 
     public function getWorldItem(): Item
     {
-        return Item::fromString($this->getWorldItemType())->setCustomName($this->getWorldItemName());
+        return LegacyStringToItemParser::getInstance()->parse($this->getWorldItemType())->setCustomName($this->getWorldItemName());
     }
 
     public function getWorlds(): array
@@ -68,9 +69,9 @@ class EventListener implements Listener
     public function onInteract(PlayerInteractEvent $event): void
     {
         $player = $event->getPlayer();
-        $level = $player->getLevel();
+        $level = $player->getWorld();
         $item = $event->getItem();
-        if (empty($this->getWorlds()) || in_array($level->getName(), $this->getWorlds(), true)) {
+        if (empty($this->getWorlds()) || in_array($level->getFolderName(), $this->getWorlds(), true)) {
             if ($item->equals($this->getWarpItem())) {
                 $event->setCancelled();
                 Loader::getInstance()->showWarpUI($player);
@@ -88,10 +89,10 @@ class EventListener implements Listener
     public function onJoin(PlayerJoinEvent $event): void
     {
         $player = $event->getPlayer();
-        $level = $player->getLevel();
+        $level = $player->getWorld();
         $player->getInventory()->remove($this->getWarpItem());
         $player->getInventory()->remove($this->getWorldItem());
-        if (empty($this->getWorlds()) || in_array($level->getName(), $this->getWorlds(), true)) {
+        if (empty($this->getWorlds()) || in_array($level->getFolderName(), $this->getWorlds(), true)) {
             if ($this->getGiveWarpItem()) {
                 $player->getInventory()->addItem($this->getWarpItem());
             }
@@ -102,18 +103,18 @@ class EventListener implements Listener
     }
 
     /**
-     * @param EntityLevelChangeEvent $event
+     * @param EntityTeleportEvent $event
      */
-    public function onLevelChange(EntityLevelChangeEvent $event): void
+    public function onLevelChange(EntityTeleportEvent $event): void
     {
         $player = $event->getEntity();
         if (!$player instanceof Player) {
             return;
         }
-        $level = $event->getTarget();
+        $level = $event->getTo()->getWorld();
         $player->getInventory()->remove($this->getWarpItem());
         $player->getInventory()->remove($this->getWorldItem());
-        if (empty($this->getWorlds()) || in_array($level->getName(), $this->getWorlds(), true)) {
+        if (empty($this->getWorlds()) || in_array($level->getFolderName(), $this->getWorlds(), true)) {
             if ($this->getGiveWarpItem()) {
                 $player->getInventory()->addItem($this->getWarpItem());
             }

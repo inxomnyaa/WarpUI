@@ -3,15 +3,17 @@
 namespace xenialdan\WarpUI;
 
 use InvalidArgumentException;
-use InvalidStateException;
+use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginCommand;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
+use pocketmine\plugin\PluginOwned;
+use pocketmine\plugin\PluginOwnedTrait;
 use pocketmine\utils\TextFormat;
 
-class WorldUICommands extends PluginCommand
+class WorldUICommands extends Command implements PluginOwned
 {
+    use PluginOwnedTrait;
 
     public function __construct(Plugin $plugin)
     {
@@ -26,7 +28,6 @@ class WorldUICommands extends PluginCommand
      * @param array $args
      * @return bool
      * @throws InvalidArgumentException
-     * @throws InvalidStateException
      */
     public function execute(CommandSender $sender, string $commandLabel, array $args): bool
     {

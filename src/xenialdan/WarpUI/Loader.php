@@ -4,15 +4,14 @@ namespace xenialdan\WarpUI;
 
 use InvalidArgumentException;
 use InvalidStateException;
-use pocketmine\level\format\io\LevelProvider;
-use pocketmine\level\format\io\LevelProviderManager;
-use pocketmine\level\LevelException;
-use pocketmine\level\Location;
-use pocketmine\Player;
+use pocketmine\entity\Location;
+use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\plugin\PluginException;
 use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat;
+use pocketmine\world\format\io\WorldProvider;
+use pocketmine\world\WorldException;
 use xenialdan\customui\elements\Button;
 use xenialdan\customui\windows\SimpleForm;
 
@@ -59,7 +58,7 @@ class Loader extends PluginBase
      */
     public static function addWarp(Location $location, string $name): bool
     {
-        self::getInstance()->warps->set($name, ['x' => $location->getX(), 'y' => $location->getY(), 'z' => $location->getZ(), 'levelname' => $location->getLevel()->getName(), 'yaw' => $location->getYaw(), 'pitch' => $location->getPitch()]);
+        self::getInstance()->warps->set($name, ['x' => $location->getX(), 'y' => $location->getY(), 'z' => $location->getZ(), 'levelname' => $location->getWorld()->getFolderName(), 'yaw' => $location->getYaw(), 'pitch' => $location->getPitch()]);
         self::getInstance()->warps->save();
         return true;
     }
@@ -67,7 +66,7 @@ class Loader extends PluginBase
     /**
      * @param string $name
      * @return null|Location
-     * @throws LevelException
+     * @throws WorldException
      */
     public static function getWarp(string $name): ?Location
     {
@@ -75,8 +74,8 @@ class Loader extends PluginBase
         if ($values === false) {
             return null;
         }
-        self::getInstance()->getServer()->loadLevel($values['levelname']);
-        return new Location($values['x'], $values['y'], $values['z'], $values['yaw'], $values['pitch'], self::getInstance()->getServer()->getLevelByName($values['levelname']));
+        self::getInstance()->getServer()->getWorldManager()->loadWorld($values['levelname']);
+        return new Location($values['x'], $values['y'], $values['z'], $values['yaw'], $values['pitch'], self::getInstance()->getServer()->getWorldManager()->getWorldByName($values['levelname']));
     }
 
     /**
@@ -148,8 +147,8 @@ class Loader extends PluginBase
         }
         $form->setCallable(static function (Player $player, $data) {
             if ($player->hasPermission('warpui.world') || $player->hasPermission('warpui.world.*') || $player->hasPermission('warpui.world.' . TextFormat::clean(strtolower($data)))) {
-                Loader::getInstance()->getServer()->loadLevel($data);
-                $level = Loader::getInstance()->getServer()->getLevelByName($data);
+                Loader::getInstance()->getServer()->getWorldManager()->loadWorld($data);
+                $level = Loader::getInstance()->getServer()->getWorldManager()->getWorldByName($data);
                 if ($level !== null) {
                     $location = $level->getSpawnLocation();
                     $player->teleport($location);
@@ -165,7 +164,7 @@ class Loader extends PluginBase
     }
 
     /**
-     * Returns all world names (!NOT FOLDER NAMES, level.dat entries) of valid levels in "/worlds"
+     * Returns all world folder names of valid levels in "/worlds"
      * @return string[]
      */
     private static function getAllWorlds(): array
@@ -177,15 +176,15 @@ class Loader extends PluginBase
         }
         foreach ($glob as $path) {
             $path .= DIRECTORY_SEPARATOR;
-            if (self::getInstance()->getServer()->isLevelLoaded(basename($path))) {
-                $worldNames[] = self::getInstance()->getServer()->getLevelByName(basename($path))->getName();
+            if (self::getInstance()->getServer()->getWorldManager()->isWorldLoaded(basename($path))) {
+                $worldNames[] = self::getInstance()->getServer()->getWorldManager()->getWorldByName(basename($path))->getFolderName();
                 continue;
             }
-            $provider = LevelProviderManager::getProvider($path);
+            $provider = self::getInstance()->getServer()->getWorldManager()->getProviderManager()->getMatchingProviders($path);
             if ($provider !== null) {
-                /** @var LevelProvider $c */
+                /** @var WorldProvider $c */
                 $c = (new $provider($path));
-                $worldNames[] = $c->getName();
+                $worldNames[] = $c->getWorldData()->getName();
                 unset($provider);
             }
         }

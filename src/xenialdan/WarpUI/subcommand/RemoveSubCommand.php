@@ -3,9 +3,8 @@
 namespace xenialdan\WarpUI\subcommand;
 
 use InvalidArgumentException;
-use InvalidStateException;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 use xenialdan\customui\elements\Button;
 use xenialdan\customui\windows\SimpleForm;
@@ -17,7 +16,6 @@ class RemoveSubCommand extends SubCommand
     /**
      * @param CommandSender $sender
      * @return bool
-     * @throws InvalidStateException
      */
     public function canUse(CommandSender $sender): bool
     {
