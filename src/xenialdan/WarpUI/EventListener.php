@@ -73,12 +73,12 @@ class EventListener implements Listener
         $item = $event->getItem();
         if (empty($this->getWorlds()) || in_array($level->getFolderName(), $this->getWorlds(), true)) {
             if ($item->equals($this->getWarpItem())) {
-                $event->setCancelled();
-                Loader::getInstance()->showWarpUI($player);
+                $event->cancel();
+				Loader::getInstance()->showWarpUI($player);
             }
             if ($item->equals($this->getWorldItem())) {
-                $event->setCancelled();
-                Loader::getInstance()->showWorldUI($player);
+				$event->cancel();
+				Loader::getInstance()->showWorldUI($player);
             }
         }
     }
