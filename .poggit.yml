@@ -4,7 +4,7 @@ projects:
     path: ""
     libs:
       - src: thebigsmilexd/customui/customui
-        version: ^4.0.0-alpha2
+        version: ^4.0.0
       - src: CortexPE/Commando/Commando
         version: ^0.3.1
 ...
