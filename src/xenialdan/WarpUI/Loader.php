@@ -74,7 +74,7 @@ class Loader extends PluginBase
 			return null;
 		}
 		try {
-			self::getInstance()->getServer()->getWorldManager()->loadWorld($values['levelname']);
+			self::getInstance()->getServer()->getWorldManager()->loadWorld($values['levelname'], true);
 		} catch (WorldException $e) {
 			self::getInstance()->getLogger()->logException($e);
 		}
@@ -151,7 +151,7 @@ class Loader extends PluginBase
 		$form->setCallable(static function (Player $player, $data) {
 			if ($player->hasPermission('warpui.world') || $player->hasPermission('warpui.world.*') || $player->hasPermission('warpui.world.' . TextFormat::clean(strtolower($data)))) {
 				try {
-					Loader::getInstance()->getServer()->getWorldManager()->loadWorld($data);
+					Loader::getInstance()->getServer()->getWorldManager()->loadWorld($data, true);
 				} catch (WorldException $e) {
 					self::getInstance()->getLogger()->logException($e);
 					$player->sendMessage($e->getMessage());
