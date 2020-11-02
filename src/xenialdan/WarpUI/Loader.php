@@ -175,19 +175,20 @@ class Loader extends PluginBase
             return $worldNames;
         }
         foreach ($glob as $path) {
-            $path .= DIRECTORY_SEPARATOR;
-            if (self::getInstance()->getServer()->getWorldManager()->isWorldLoaded(basename($path))) {
-                $worldNames[] = self::getInstance()->getServer()->getWorldManager()->getWorldByName(basename($path))->getFolderName();
-                continue;
-            }
-            $provider = self::getInstance()->getServer()->getWorldManager()->getProviderManager()->getMatchingProviders($path);
-            if ($provider !== null) {
-                /** @var WorldProvider $c */
-                $c = (new $provider($path));
-                $worldNames[] = $c->getWorldData()->getName();
-                unset($provider);
-            }
-        }
+			$path .= DIRECTORY_SEPARATOR;
+			if (self::getInstance()->getServer()->getWorldManager()->isWorldLoaded(basename($path))) {
+				$worldNames[] = self::getInstance()->getServer()->getWorldManager()->getWorldByName(basename($path))->getFolderName();
+				continue;
+			}
+			$providers = self::getInstance()->getServer()->getWorldManager()->getProviderManager()->getMatchingProviders($path);
+			$provider = array_values($providers)[0];
+			if ($provider !== null) {
+				/** @var WorldProvider $c */
+				$c = (new $provider($path));
+				$worldNames[] = $c->getWorldData()->getName();
+				unset($provider, $providers);
+			}
+		}
         sort($worldNames);
         return $worldNames;
     }
