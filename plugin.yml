@@ -1,7 +1,7 @@
 ---
 name: WarpUI
 main: xenialdan\WarpUI\Loader
-version: 4.0.2
+version: 4.0.3
 api: ["4.0.0"]
 load: POSTWORLD
 authors:
@@ -10,38 +10,34 @@ permissions:
   warpui.command:
     description: "Permission to use WarpUI commands"
     default: true
-    children:
-      warpui.command.warp:
-        description: "Permission to use WarpUI warp commands"
-        default: op
-        children:
-          warpui.command.warp.add:
-            description: "Add warps to WarpUI"
-            default: op
-          warpui.command.warp.remove:
-            description: "Remove warps from WarpUI"
-            default: op
-          warpui.command.warp.list:
-            description: "List warps"
-            default: op
-          warpui.command.warp.teleport:
-            description: "Teleport to a WarpUI warp"
-            default: op
-      warpui.command.world:
-        description: "Open the world ui"
-        default: op
+  warpui.command.warp:
+    description: "Permission to use WarpUI warp commands"
+    default: op
+  warpui.command.warp.add:
+    description: "Add warps to WarpUI"
+    default: op
+  warpui.command.warp.remove:
+    description: "Remove warps from WarpUI"
+    default: op
+  warpui.command.warp.list:
+    description: "List warps"
+    default: op
+  warpui.command.warp.teleport:
+    description: "Teleport to a WarpUI warp"
+    default: op
+  warpui.command.world:
+    description: "Open the world ui"
+    default: op
   warpui.warp:
     description: "Permission to teleport to warps"
     default: true
-    children:
-      warpui.warp.*:
-        description: "Permission for a specific warp"
-        default: op
+  warpui.warp.*:
+    description: "Permission for a specific warp"
+    default: op
   warpui.world:
     description: "Permission to teleport to worlds"
     default: true
-    children:
-      warpui.world.*:
-        description: "Permission for a specific world"
-        default: op
+  warpui.world.*:
+    description: "Permission for a specific world"
+    default: op
 ...
